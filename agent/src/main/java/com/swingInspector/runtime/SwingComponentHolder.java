@@ -7,7 +7,9 @@ import javax.swing.*;
  * date  : 11/10/13
  */
 public class SwingComponentHolder {
-	public static void registerJComponent(JComponent component) {
+	public static final Components components = new Components();
 
+	public static void registerJComponent(JComponent component) {
+		components.register(component);
 	}
 }
