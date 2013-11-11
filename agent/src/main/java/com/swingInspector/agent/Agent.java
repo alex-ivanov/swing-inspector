@@ -1,5 +1,6 @@
 package com.swingInspector.agent;
 
+import com.swingInspector.ui.SwingDevelopmentConsoleUI;
 import org.objectweb.asm.Type;
 
 import javax.swing.*;
@@ -26,23 +27,24 @@ public class Agent {
 			System.exit(1);
 		}
 
+		String internalJComponentName = Type.getInternalName(JComponent.class);
+		ConstructorCallTransformer transformer = new ConstructorCallTransformer(
+				Collections.singleton(internalJComponentName));
+		instrumentation.addTransformer(transformer, true);
+		try {
+			instrumentation.retransformClasses(JComponent.class);
+		} catch (UnmodifiableClassException e) {
+			throw new RuntimeException(e);
+		}
+
 		try {
 			instrumentation.appendToBootstrapClassLoaderSearch(new JarFile(jar));
 		} catch (IOException e) {
 			throw new RuntimeException(e);
 		}
 
-		String internalJComponentName = Type.getInternalName(JComponent.class);
-		ConstructorCallTransformer transformer = new ConstructorCallTransformer(
-				Collections.singleton(internalJComponentName));
-		instrumentation.addTransformer(transformer);
-		try {
-			instrumentation.retransformClasses(JComponent.class);//retransform existed classes
-		} catch (UnmodifiableClassException e) {
-			throw new RuntimeException(e);
-		} finally {
-			instrumentation.removeTransformer(transformer);
-		}
+		SwingDevelopmentConsoleUI ui = new SwingDevelopmentConsoleUI();
+		ui.setVisible(true);
 	}
 
 	private static String locateAgentJar() {
