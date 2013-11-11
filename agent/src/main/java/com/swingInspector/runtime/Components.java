@@ -18,4 +18,11 @@ public class Components {
 	public void register(JComponent c) {
 		components.put(c, new Exception());
 	}
+
+	@SuppressWarnings("ThrowableResultOfMethodCallIgnored")
+	public void registerSoft(JComponent c) {
+		if (!components.containsKey(c)) {
+			components.put(c, null);
+		}
+	}
 }
