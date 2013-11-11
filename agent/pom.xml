@@ -30,9 +30,8 @@
 							<goal>shade</goal>
 						</goals>
 						<configuration>
-
 							<shadedArtifactAttached>false</shadedArtifactAttached>
-							<createDependencyReducedPom>true</createDependencyReducedPom>
+							<createDependencyReducedPom>false</createDependencyReducedPom>
 
 							<relocations>
 								<relocation>
