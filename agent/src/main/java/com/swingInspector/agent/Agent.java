@@ -1,7 +1,6 @@
 package com.swingInspector.agent;
 
 import org.objectweb.asm.Type;
-import sun.tools.jconsole.JConsole;
 
 import javax.swing.*;
 import java.lang.instrument.Instrumentation;
