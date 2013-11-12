@@ -1,12 +1,17 @@
 package com.swingInspector.ui;
 
 import com.swingInspector.runtime.ComponentHighlightConfiguration;
+import com.swingInspector.runtime.ComponentListener;
+import com.swingInspector.runtime.SwingComponentHolder;
 import com.swingInspector.runtime.SwingInspectorConsole;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.ByteArrayOutputStream;
+import java.io.PrintStream;
+import java.io.UnsupportedEncodingException;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import static com.swingInspector.runtime.ComponentHighlightConfiguration.BorderType;
@@ -51,7 +56,26 @@ public class SwingDevelopmentConsoleUI extends JFrame {
 		basePanel.add(stackTracePane, c);
 
 		this.getContentPane().add(basePanel);
-		this.setMaximumSize(new Dimension(400, 400));
+		this.setPreferredSize(new Dimension(400, 400));
+		SwingInspectorConsole.borderControl.addListener(new ComponentListener() {
+			@Override
+			public void onComponent(JComponent c) {
+				Exception exception = SwingComponentHolder.components.stackTrace(c);
+				if (exception != null) {
+					ByteArrayOutputStream out = new ByteArrayOutputStream();
+					PrintStream stream = new PrintStream(out);
+					exception.printStackTrace(stream);
+					try {
+						stackTracePane.setText("");
+						String str = out.toString("UTF8");
+						stackTracePane.setText(str);
+					} catch (UnsupportedEncodingException e) {
+						throw new RuntimeException(e);
+					}
+				}
+			}
+		});
+
 		pack();
 	}
 

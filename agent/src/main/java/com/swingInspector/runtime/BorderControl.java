@@ -5,6 +5,7 @@ import javax.swing.border.Border;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.util.HashSet;
 import java.util.Set;
 
 /**
@@ -22,6 +23,8 @@ public class BorderControl {
 		}
 	};
 
+	private final Set<ComponentListener> listeners = new HashSet<ComponentListener>();
+
 	public void enableBorder(ComponentHighlightConfiguration configuration) {
 		if (currentBorderConfig != null && currentBorderConfig.equals(configuration)) {
 			return;
@@ -32,7 +35,7 @@ public class BorderControl {
 		}
 
 		Components components = SwingComponentHolder.components;
-		currentBorderListener = new BorderMouseListeners(configuration, components);
+		currentBorderListener = new BorderMouseListeners(this, configuration, components);
 		currentBorderConfig = configuration;
 		Set<JComponent> set = components.componentsSet();
 		for (JComponent cc : set) {
@@ -48,6 +51,14 @@ public class BorderControl {
 			restoreOriginalBorder(components, component);
 		}
 		components.removeListener(BORDER_LISTENER);
+	}
+
+	public void addListener(ComponentListener listener) {
+		listeners.add(listener);
+	}
+
+	public void removeListener(ComponentListener listener) {
+		listeners.remove(listener);
 	}
 
 	private static void restoreOriginalBorder(Components components, JComponent c) {
@@ -88,10 +99,15 @@ public class BorderControl {
 	}
 
 	private static class BorderMouseListeners extends MouseAdapter {
+		private final BorderControl borderControl;
 		private final ComponentHighlightConfiguration configuration;
 		private final Components components;
 
-		public BorderMouseListeners(ComponentHighlightConfiguration configuration, Components components) {
+		public BorderMouseListeners(BorderControl borderControl,
+									ComponentHighlightConfiguration configuration,
+									Components components)
+		{
+			this.borderControl = borderControl;
 			this.configuration = configuration;
 			this.components = components;
 		}
@@ -102,6 +118,10 @@ public class BorderControl {
 			if (component instanceof JComponent) {
 				JComponent c = (JComponent) component;
 				setupCustomBorder(components, configuration, c);
+				Set<ComponentListener> set = borderControl.listeners;
+				for (ComponentListener listener : set) {
+					listener.onComponent(c);
+				}
 			}
 		}
 
