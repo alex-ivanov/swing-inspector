@@ -16,31 +16,41 @@ import static com.swingInspector.runtime.ComponentHighlightConfiguration.BorderT
  * date  : 11/10/13
  */
 public class SwingDevelopmentConsoleUI extends JFrame {
+	private final AtomicBoolean bordersHighlight = new AtomicBoolean(false);
+	private final JButton enableDisableBorderButton;
+
 	public SwingDevelopmentConsoleUI() throws HeadlessException {
 		super("Swing development console");
 		JPanel basePanel = new JPanel(new GridBagLayout());
 
-		final JButton enableDisableBorderButton = new JButton("Enable locator");
-		final AtomicBoolean enabled = new AtomicBoolean(false);
+		enableDisableBorderButton = new JButton("Enable locator");
 		enableDisableBorderButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				if (enabled.get()) {
-					SwingInspectorConsole.borderControl.disableBorder();
-					enabled.set(false);
-					enableDisableBorderButton.setText("Enable locator");
+				if (bordersHighlight.get()) {
+					enableBorderLocator();
 				} else {
-					enabled.set(true);
-					enableDisableBorderButton.setText("Disable locator");
-					ComponentHighlightConfiguration configuration =
-							new ComponentHighlightConfiguration(Color.RED, BorderType.SINGLE_COMPONENT);
-					SwingInspectorConsole.borderControl.enableBorder(configuration);
+					disableBorderLocator();
 				}
 			}
 		});
 		basePanel.add(enableDisableBorderButton);
 		this.getContentPane().add(basePanel);
 		pack();
+	}
+
+	private void disableBorderLocator() {
+		bordersHighlight.set(true);
+		enableDisableBorderButton.setText("Disable locator");
+		ComponentHighlightConfiguration configuration =
+				new ComponentHighlightConfiguration(Color.RED, BorderType.SINGLE_COMPONENT);
+		SwingInspectorConsole.borderControl.enableBorder(configuration);
+	}
+
+	private void enableBorderLocator() {
+		SwingInspectorConsole.borderControl.disableBorder();
+		bordersHighlight.set(false);
+		enableDisableBorderButton.setText("Enable locator");
 	}
 
 	public static void main(String[] args) {
