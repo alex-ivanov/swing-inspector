@@ -22,7 +22,7 @@ public class BorderControl {
 		}
 	};
 
-	public void enableBorder(final ComponentHighlightConfiguration configuration) {
+	public void enableBorder(ComponentHighlightConfiguration configuration) {
 		if (currentBorderConfig != null && currentBorderConfig.equals(configuration)) {
 			return;
 		}
@@ -56,17 +56,35 @@ public class BorderControl {
 		Boolean hasBorder = data.getData("has_border");
 		if (hasBorder != null && hasBorder) {
 			c.setBorder(b);
+			data.addData("has_border", null);
+		}
+		Container parent = c.getParent();
+		if (parent instanceof JComponent) {
+			restoreOriginalBorder(components, (JComponent) parent);
 		}
 	}
 
-	private static void setupCustomBorder(Components components, ComponentHighlightConfiguration configuration, JComponent c) {
+	private static void setupCustomBorder(Components components,
+										ComponentHighlightConfiguration configuration,
+										JComponent c)
+	{
 		Border newBorder = BorderFactory.createLineBorder(configuration.getBorderColor());
 		Border currentBorder = c.getBorder();
 
 		Components.ComponentInformationHolder data = components.getData(c);
-		data.addData("border", currentBorder);
-		data.addData("has_border", true);
-		c.setBorder(newBorder);
+		Boolean definedBefore = data.getData("has_border");
+
+		if (definedBefore == null || !definedBefore) {
+			data.addData("border", currentBorder);
+			data.addData("has_border", true);
+			c.setBorder(newBorder);
+			if (configuration.getType() == ComponentHighlightConfiguration.BorderType.WHOLE_TREE) {
+				Container parent = c.getParent();
+				if (parent instanceof JComponent) {
+					setupCustomBorder(components, configuration, (JComponent) parent);
+				}
+			}
+		}
 	}
 
 	private static class BorderMouseListeners extends MouseAdapter {

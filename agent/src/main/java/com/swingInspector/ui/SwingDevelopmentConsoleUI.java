@@ -43,7 +43,7 @@ public class SwingDevelopmentConsoleUI extends JFrame {
 		bordersHighlight.set(true);
 		enableDisableBorderButton.setText("Disable locator");
 		ComponentHighlightConfiguration configuration =
-				new ComponentHighlightConfiguration(Color.RED, BorderType.SINGLE_COMPONENT);
+				new ComponentHighlightConfiguration(Color.RED, BorderType.WHOLE_TREE);
 		SwingInspectorConsole.borderControl.enableBorder(configuration);
 	}
 
