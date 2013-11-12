@@ -5,6 +5,13 @@ package com.swingInspector.runtime;
  * date  : 11/10/13
  */
 public class SwingInspectorConsole {
-	public static final BorderControl borderControl = new BorderControl();
+	/**
+	 * All JComponent in the system.
+	 */
 	public static final Components components = new Components();
+
+	/**
+	 * Control for border highlighter
+	 */
+	public static final BorderControl borderControl = new BorderControl();
 }
