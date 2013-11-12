@@ -34,7 +34,7 @@ public class BorderControl {
 			disableBorder();//remove all old borders
 		}
 
-		Components components = SwingComponentHolder.components;
+		Components components = SwingInspectorConsole.components;
 		currentBorderListener = new BorderMouseListeners(this, configuration, components);
 		currentBorderConfig = configuration;
 		Set<JComponent> set = components.componentsSet();
@@ -45,7 +45,7 @@ public class BorderControl {
 	}
 
 	public void disableBorder() {
-		Components components = SwingComponentHolder.components;
+		Components components = SwingInspectorConsole.components;
 		for (JComponent component : components.componentsSet()) {
 			component.removeMouseListener(currentBorderListener);
 			restoreOriginalBorder(components, component);

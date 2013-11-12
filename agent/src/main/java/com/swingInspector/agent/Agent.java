@@ -1,7 +1,7 @@
 package com.swingInspector.agent;
 
-import com.swingInspector.runtime.SwingComponentHolder;
 import com.swingInspector.runtime.SwingHelper;
+import com.swingInspector.runtime.SwingInspectorConsole;
 import com.swingInspector.ui.SwingDevelopmentConsoleUI;
 import org.objectweb.asm.Type;
 
@@ -44,7 +44,7 @@ public class Agent {
 		} catch (IOException e) {
 			throw new RuntimeException(e);
 		}
-		SwingHelper.collectAllComponents(SwingComponentHolder.components);
+		SwingHelper.collectAllComponents(SwingInspectorConsole.components);
 		SwingDevelopmentConsoleUI ui = new SwingDevelopmentConsoleUI();
 		ui.setVisible(true);
 	}

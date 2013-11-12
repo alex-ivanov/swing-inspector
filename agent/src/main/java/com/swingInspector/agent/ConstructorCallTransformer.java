@@ -1,6 +1,6 @@
 package com.swingInspector.agent;
 
-import com.swingInspector.runtime.SwingComponentHolder;
+import com.swingInspector.runtime.Hooks;
 import org.objectweb.asm.*;
 
 import javax.swing.*;
@@ -32,14 +32,15 @@ public class ConstructorCallTransformer implements ClassFileTransformer {
 			try {
 				ClassReader reader = new ClassReader(classfileBuffer);
 				ClassWriter writer = new ClassWriter(ClassWriter.COMPUTE_MAXS);
-				Class<SwingComponentHolder> clazz = SwingComponentHolder.class;
+				Class<Hooks> clazz = Hooks.class;
 
 				String target = Type.getInternalName(clazz);
-				String name = "registerJComponent";
+				String name = "onComponentCreate";
 				Method toCall = clazz.getMethod(name, JComponent.class);
 
 				String methodDesc = Type.getMethodDescriptor(toCall);
-				ConstructorClassAppender realTransformer = new ConstructorClassAppender(writer, target, name, methodDesc);
+				ConstructorClassAppender realTransformer =
+						new ConstructorClassAppender(writer, target, name, methodDesc);
 				reader.accept(realTransformer, ClassReader.EXPAND_FRAMES);
 				return writer.toByteArray();
 			} catch (NoSuchMethodException e) {

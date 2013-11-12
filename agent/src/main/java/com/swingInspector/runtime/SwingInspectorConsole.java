@@ -6,4 +6,5 @@ package com.swingInspector.runtime;
  */
 public class SwingInspectorConsole {
 	public static final BorderControl borderControl = new BorderControl();
+	public static final Components components = new Components();
 }
