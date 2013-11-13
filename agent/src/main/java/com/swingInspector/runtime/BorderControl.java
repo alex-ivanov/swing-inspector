@@ -1,5 +1,8 @@
 package com.swingInspector.runtime;
 
+import com.swingInspector.utils.Listener;
+import com.swingInspector.utils.Listeners;
+
 import javax.swing.*;
 import javax.swing.border.Border;
 import java.awt.*;
@@ -15,15 +18,15 @@ import java.util.Set;
 public class BorderControl {
 	private MouseAdapter currentBorderListener;
 	private ComponentHighlightConfiguration currentBorderConfig;
-	private final ComponentListener BORDER_LISTENER = new ComponentListener() {
+	private final Listener<JComponent> BORDER_LISTENER = new Listener<JComponent>() {
 		@Override
-		public void onComponent(JComponent c) {
+		public void onEvent(JComponent update) {
 			if (currentBorderListener != null)
-				c.addMouseListener(currentBorderListener);
+				update.addMouseListener(currentBorderListener);
 		}
 	};
 
-	private final Set<ComponentListener> listeners = new HashSet<ComponentListener>();
+	private final Listeners<JComponent> listeners = new Listeners<JComponent>();
 
 	public void enableBorder(ComponentHighlightConfiguration configuration) {
 		if (currentBorderConfig != null && currentBorderConfig.equals(configuration)) {
@@ -53,12 +56,12 @@ public class BorderControl {
 		components.removeListener(BORDER_LISTENER);
 	}
 
-	public void addListener(ComponentListener listener) {
-		listeners.add(listener);
+	public void addListener(Listener<JComponent> listener) {
+		listeners.addListener(listener);
 	}
 
-	public void removeListener(ComponentListener listener) {
-		listeners.remove(listener);
+	public void removeListener(Listener<JComponent> listener) {
+		listeners.removeListener(listener);
 	}
 
 	private static void restoreOriginalBorder(Components components, JComponent c) {
@@ -118,10 +121,7 @@ public class BorderControl {
 			if (component instanceof JComponent) {
 				JComponent c = (JComponent) component;
 				setupCustomBorder(components, configuration, c);
-				Set<ComponentListener> set = borderControl.listeners;
-				for (ComponentListener listener : set) {
-					listener.onComponent(c);
-				}
+				borderControl.listeners.pushEvent(c);
 			}
 		}
 

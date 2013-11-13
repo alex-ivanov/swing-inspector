@@ -1,8 +1,8 @@
 package com.swingInspector.ui;
 
 import com.swingInspector.runtime.ComponentHighlightConfiguration;
-import com.swingInspector.runtime.ComponentListener;
 import com.swingInspector.runtime.SwingInspectorConsole;
+import com.swingInspector.utils.Listener;
 
 import javax.swing.*;
 import java.awt.*;
@@ -56,9 +56,9 @@ public class SwingDevelopmentConsoleUI extends JFrame {
 
 		this.getContentPane().add(basePanel);
 		this.setPreferredSize(new Dimension(400, 400));
-		SwingInspectorConsole.borderControl.addListener(new ComponentListener() {
+		SwingInspectorConsole.borderControl.addListener(new Listener<JComponent>() {
 			@Override
-			public void onComponent(JComponent c) {
+			public void onEvent(JComponent c) {
 				Exception exception = SwingInspectorConsole.components.stackTrace(c);
 				if (exception != null) {
 					ByteArrayOutputStream out = new ByteArrayOutputStream();

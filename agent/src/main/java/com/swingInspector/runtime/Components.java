@@ -1,5 +1,8 @@
 package com.swingInspector.runtime;
 
+import com.swingInspector.utils.Listener;
+import com.swingInspector.utils.Listeners;
+
 import javax.swing.*;
 import java.util.*;
 
@@ -11,7 +14,7 @@ public class Components {
 	private final WeakHashMap<JComponent, ComponentInformationHolder> components =
 			new WeakHashMap<JComponent, ComponentInformationHolder>();
 
-	private final Set<ComponentListener> listeners = new HashSet<ComponentListener>();
+	private final Listeners<JComponent> listeners = new Listeners<JComponent>();
 
 	public Exception stackTrace(JComponent target) {
 		ComponentInformationHolder holder = components.get(target);
@@ -32,9 +35,7 @@ public class Components {
 
 	private void registerPrivate(JComponent c, Exception stackTrace) {
 		components.put(c, new ComponentInformationHolder(stackTrace));
-		for (ComponentListener listener : listeners) {
-			listener.onComponent(c);
-		}
+		listeners.pushEvent(c);
 	}
 
 	public Set<JComponent> componentsSet() {
@@ -45,12 +46,12 @@ public class Components {
 		return components.get(component);
 	}
 
-	public void addListener(ComponentListener listener) {
-		listeners.add(listener);
+	public void addListener(Listener<JComponent> listener) {
+		listeners.addListener(listener);
 	}
 
-	public void removeListener(ComponentListener listener) {
-		listeners.remove(listener);
+	public void removeListener(Listener<JComponent> listener) {
+		listeners.removeListener(listener);
 	}
 
 	@SuppressWarnings("unchecked")
