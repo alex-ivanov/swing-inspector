@@ -7,6 +7,8 @@ import javax.swing.*;
 import java.util.*;
 
 /**
+ * Components holder for all known components in the system.
+ *
  * author: alex
  * date  : 11/10/13
  */
