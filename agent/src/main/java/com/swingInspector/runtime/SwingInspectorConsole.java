@@ -10,8 +10,10 @@ public class SwingInspectorConsole {
 	 */
 	public static final Components components = new Components();
 
+	public static final ComponentSelectionControl selectionControl = new ComponentSelectionControl(components);
+
 	/**
 	 * Control for border highlighter
 	 */
-	public static final BorderControl borderControl = new BorderControl();
+	public static final BorderControl borderControl = new BorderControl(components, selectionControl);
 }

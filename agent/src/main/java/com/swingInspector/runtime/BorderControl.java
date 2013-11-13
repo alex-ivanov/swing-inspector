@@ -16,52 +16,29 @@ import java.util.Set;
  * date  : 11/10/13
  */
 public class BorderControl {
-	private MouseAdapter currentBorderListener;
-	private ComponentHighlightConfiguration currentBorderConfig;
-	private final Listener<JComponent> BORDER_LISTENER = new Listener<JComponent>() {
-		@Override
-		public void onEvent(JComponent update) {
-			if (currentBorderListener != null)
-				update.addMouseListener(currentBorderListener);
-		}
-	};
 
-	private final Listeners<JComponent> listeners = new Listeners<JComponent>();
+	private ComponentHighlightConfiguration currentConfiguration;
+
+	public BorderControl(final Components components, ComponentSelectionControl selection) {
+		selection.addComponentMouseListener(new BorderListener(components));
+	}
 
 	public void enableBorder(ComponentHighlightConfiguration configuration) {
-		if (currentBorderConfig != null && currentBorderConfig.equals(configuration)) {
-			return;
+		if (currentConfiguration != null && currentConfiguration.equals(configuration)) {
+			return;//current border is the same
 		}
 
-		if (currentBorderConfig != null) {
+		if (currentConfiguration != null) {
 			disableBorder();//remove all old borders
 		}
-
-		Components components = SwingInspectorConsole.components;
-		currentBorderListener = new BorderMouseListeners(this, configuration, components);
-		currentBorderConfig = configuration;
-		Set<JComponent> set = components.componentsSet();
-		for (JComponent cc : set) {
-			cc.addMouseListener(currentBorderListener);
-		}
-		components.addListener(BORDER_LISTENER);
+		currentConfiguration = configuration;
 	}
 
 	public void disableBorder() {
 		Components components = SwingInspectorConsole.components;
 		for (JComponent component : components.componentsSet()) {
-			component.removeMouseListener(currentBorderListener);
 			restoreOriginalBorder(components, component);
 		}
-		components.removeListener(BORDER_LISTENER);
-	}
-
-	public void addListener(Listener<JComponent> listener) {
-		listeners.addListener(listener);
-	}
-
-	public void removeListener(Listener<JComponent> listener) {
-		listeners.removeListener(listener);
 	}
 
 	private static void restoreOriginalBorder(Components components, JComponent c) {
@@ -101,36 +78,23 @@ public class BorderControl {
 		}
 	}
 
-	private static class BorderMouseListeners extends MouseAdapter {
-		private final BorderControl borderControl;
-		private final ComponentHighlightConfiguration configuration;
+	private class BorderListener implements Listener<ComponentsSelectionEvent> {
 		private final Components components;
 
-		public BorderMouseListeners(BorderControl borderControl,
-									ComponentHighlightConfiguration configuration,
-									Components components)
-		{
-			this.borderControl = borderControl;
-			this.configuration = configuration;
+		public BorderListener(Components components) {
 			this.components = components;
 		}
 
 		@Override
-		public void mouseEntered(MouseEvent e) {
-			Component component = e.getComponent();
-			if (component instanceof JComponent) {
-				JComponent c = (JComponent) component;
-				setupCustomBorder(components, configuration, c);
-				borderControl.listeners.pushEvent(c);
-			}
-		}
-
-		@Override
-		public void mouseExited(MouseEvent e) {
-			Component component = e.getComponent();
-			if (component instanceof JComponent) {
-				JComponent c = (JComponent) component;
-				restoreOriginalBorder(components, c);
+		public void onEvent(ComponentsSelectionEvent update) {
+			switch (update.getType()) {
+				case ENTER:
+					if (currentConfiguration != null)
+						setupCustomBorder(components, currentConfiguration, update.getComponent());
+					break;
+				case EXIT:
+					restoreOriginalBorder(components, update.getComponent());
+					break;
 			}
 		}
 	}

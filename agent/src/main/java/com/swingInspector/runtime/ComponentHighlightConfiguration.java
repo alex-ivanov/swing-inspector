@@ -10,9 +10,21 @@ public class ComponentHighlightConfiguration {
 	private final Color borderColor;
 	private final BorderType type;
 
-	public ComponentHighlightConfiguration(Color borderColor, BorderType type) {
+	private ComponentHighlightConfiguration(Color borderColor, BorderType type) {
 		this.borderColor = borderColor;
 		this.type = type;
+	}
+
+	public static ComponentHighlightConfiguration none() {
+		return new ComponentHighlightConfiguration(null, BorderType.NONE);
+	}
+
+	public static ComponentHighlightConfiguration single(Color color) {
+		return new ComponentHighlightConfiguration(color, BorderType.SINGLE_COMPONENT);
+	}
+
+	public static ComponentHighlightConfiguration tree(Color color) {
+		return new ComponentHighlightConfiguration(color, BorderType.WHOLE_TREE);
 	}
 
 	public Color getBorderColor() {
@@ -43,6 +55,7 @@ public class ComponentHighlightConfiguration {
 	}
 
 	public enum BorderType {
+		NONE,
 		SINGLE_COMPONENT,
 		WHOLE_TREE
 	}

@@ -1,6 +1,7 @@
 package com.swingInspector.ui;
 
 import com.swingInspector.runtime.ComponentHighlightConfiguration;
+import com.swingInspector.runtime.ComponentsSelectionEvent;
 import com.swingInspector.runtime.SwingInspectorConsole;
 import com.swingInspector.utils.Listener;
 
@@ -56,20 +57,23 @@ public class SwingDevelopmentConsoleUI extends JFrame {
 
 		this.getContentPane().add(basePanel);
 		this.setPreferredSize(new Dimension(400, 400));
-		SwingInspectorConsole.borderControl.addListener(new Listener<JComponent>() {
+		SwingInspectorConsole.selectionControl.addComponentMouseListener(
+				new Listener<ComponentsSelectionEvent>() {
 			@Override
-			public void onEvent(JComponent c) {
-				Exception exception = SwingInspectorConsole.components.stackTrace(c);
-				if (exception != null) {
-					ByteArrayOutputStream out = new ByteArrayOutputStream();
-					PrintStream stream = new PrintStream(out);
-					exception.printStackTrace(stream);
-					try {
-						stackTracePane.setText("");
-						String str = out.toString("UTF8");
-						stackTracePane.setText(str);
-					} catch (UnsupportedEncodingException e) {
-						throw new RuntimeException(e);
+			public void onEvent(ComponentsSelectionEvent c) {
+				if (c.getType() == ComponentsSelectionEvent.Type.ENTER) {
+					Exception exception = SwingInspectorConsole.components.stackTrace(c.getComponent());
+					if (exception != null) {
+						ByteArrayOutputStream out = new ByteArrayOutputStream();
+						PrintStream stream = new PrintStream(out);
+						exception.printStackTrace(stream);
+						try {
+							stackTracePane.setText("");
+							String str = out.toString("UTF8");
+							stackTracePane.setText(str);
+						} catch (UnsupportedEncodingException e) {
+							throw new RuntimeException(e);
+						}
 					}
 				}
 			}
@@ -81,8 +85,7 @@ public class SwingDevelopmentConsoleUI extends JFrame {
 	private void disableBorderLocator() {
 		bordersHighlight.set(true);
 		enableDisableBorderButton.setText("Disable locator");
-		ComponentHighlightConfiguration configuration =
-				new ComponentHighlightConfiguration(Color.RED, BorderType.WHOLE_TREE);
+		ComponentHighlightConfiguration configuration = ComponentHighlightConfiguration.tree(Color.RED);
 		SwingInspectorConsole.borderControl.enableBorder(configuration);
 	}
 
