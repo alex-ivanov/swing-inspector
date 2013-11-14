@@ -64,11 +64,25 @@ public class BorderControl {
 	private void addBorder(JComponent component) {
 		if (borderedComponents.put(component, PLACE_HOLDER) == null)
 			component.repaint();
+		if (currentConfiguration != null &&
+				currentConfiguration.getType() == ComponentHighlightConfiguration.BorderType.WHOLE_TREE)
+		{
+			Container parent = component.getParent();
+			if (parent != null && parent instanceof JComponent)
+				addBorder((JComponent) parent);
+		}
 	}
 
 	private void disableBorder(JComponent component) {
 		if (borderedComponents.remove(component) == PLACE_HOLDER)
 			component.repaint();
+		if (currentConfiguration != null &&
+				currentConfiguration.getType() == ComponentHighlightConfiguration.BorderType.WHOLE_TREE)
+		{
+			Container parent = component.getParent();
+			if (parent != null && parent instanceof JComponent)
+				disableBorder((JComponent) parent);
+		}
 	}
 
 	private class BorderListener implements Listener<ComponentsSelectionEvent> {
