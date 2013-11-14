@@ -16,10 +16,14 @@ import java.util.Set;
  * date  : 11/10/13
  */
 public class BorderControl {
-
+	private final PaintControl paintControl;
 	private ComponentHighlightConfiguration currentConfiguration;
 
-	public BorderControl(final Components components, ComponentSelectionControl selection) {
+	public BorderControl(final Components components,
+						 ComponentSelectionControl selection,
+						 PaintControl paintControl)
+	{
+		this.paintControl = paintControl;
 		selection.addComponentMouseListener(new BorderListener(components));
 	}
 
@@ -90,10 +94,10 @@ public class BorderControl {
 			switch (update.getType()) {
 				case ENTER:
 					if (currentConfiguration != null)
-						setupCustomBorder(components, currentConfiguration, update.getComponent());
+						paintControl.addComponentToBordering(update.getComponent());
 					break;
 				case EXIT:
-					restoreOriginalBorder(components, update.getComponent());
+					paintControl.removeComponentFromBordering(update.getComponent());
 					break;
 			}
 		}

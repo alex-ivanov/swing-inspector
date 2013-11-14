@@ -1,6 +1,7 @@
 package com.swingInspector.runtime;
 
 import javax.swing.*;
+import java.awt.*;
 
 /**
  * author: alex
@@ -13,5 +14,9 @@ public class Hooks {
 	 */
 	public static void onComponentCreate(JComponent c) {
 		SwingInspectorConsole.components.register(c);
+	}
+
+	public static void onPaint(JComponent component, Graphics graphics) {
+		SwingInspectorConsole.paintControl.onComponentPaint(component, graphics);
 	}
 }

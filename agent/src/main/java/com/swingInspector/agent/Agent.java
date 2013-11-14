@@ -32,9 +32,17 @@ public class Agent {
 		String internalJComponentName = Type.getInternalName(JComponent.class);
 		ConstructorCallTransformer transformer = new ConstructorCallTransformer(
 				Collections.singleton(internalJComponentName));
+
+		instrumentation.addTransformer(new PaintHookTransformer(), true);
 		instrumentation.addTransformer(transformer, true);
 		try {
 			instrumentation.retransformClasses(JComponent.class);
+			Class[] loadedClasses = instrumentation.getAllLoadedClasses();
+			for (Class<?> loadedClass : loadedClasses) {
+				if (loadedClass.isAssignableFrom(JComponent.class)) {
+					instrumentation.retransformClasses(loadedClass);
+				}
+			}
 		} catch (UnmodifiableClassException e) {
 			throw new RuntimeException(e);
 		}
