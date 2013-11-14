@@ -46,4 +46,18 @@ public class SwingHelper {
 				collectComponentsFromContainer(components, visited, c);
 		}
 	}
+
+	public static void paintBorder(JComponent c, Graphics graphics, Color color) {
+		int x = c.getWidth() - 1;
+		int y = c.getHeight() - 1;
+		if (x > 0 && y > 0) {
+			Graphics g = graphics.create();
+			g.setColor(color);
+			g.drawLine(0, 0, x, 0);
+			g.drawLine(x, 0, x, y);
+			g.drawLine(0, 0, 0, y);
+			g.drawLine(0, y, x, y);
+			g.dispose();
+		}
+	}
 }

@@ -17,5 +17,5 @@ public class SwingInspectorConsole {
 	/**
 	 * Control for border highlighter
 	 */
-	public static final BorderControl borderControl = new BorderControl(components, selectionControl, paintControl);
+	public static final BorderControl borderControl = new BorderControl(selectionControl, paintControl);
 }

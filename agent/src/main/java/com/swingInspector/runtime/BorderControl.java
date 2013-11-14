@@ -9,22 +9,36 @@ import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
+import java.util.WeakHashMap;
 
 /**
  * author: alex
  * date  : 11/10/13
  */
 public class BorderControl {
-	private final PaintControl paintControl;
+	private static final Object PLACE_HOLDER = new Object();
+
+	private final Map<JComponent, Object> borderedComponents = new WeakHashMap<JComponent, Object>();
+
 	private ComponentHighlightConfiguration currentConfiguration;
 
-	public BorderControl(final Components components,
-						 ComponentSelectionControl selection,
+
+	public BorderControl(ComponentSelectionControl selection,
 						 PaintControl paintControl)
 	{
-		this.paintControl = paintControl;
-		selection.addComponentMouseListener(new BorderListener(components));
+		selection.addComponentMouseListener(new BorderListener(this));
+		paintControl.addListener(new Listener<ComponentPaintEvent>() {
+			@Override
+			public void onEvent(ComponentPaintEvent update) {
+				if (currentConfiguration != null && borderedComponents.containsKey(update.getComponent())) {
+					SwingHelper.paintBorder(update.getComponent(),
+							update.getGraphics(),
+							currentConfiguration.getBorderColor());
+				}
+			}
+		});
 	}
 
 	public void enableBorder(ComponentHighlightConfiguration configuration) {
@@ -39,65 +53,39 @@ public class BorderControl {
 	}
 
 	public void disableBorder() {
-		Components components = SwingInspectorConsole.components;
-		for (JComponent component : components.componentsSet()) {
-			restoreOriginalBorder(components, component);
+		currentConfiguration = null;
+		Set<JComponent> components = new HashSet<JComponent>(borderedComponents.keySet());
+		borderedComponents.clear();
+		for (JComponent component : components) {
+			component.repaint();
 		}
 	}
 
-	private static void restoreOriginalBorder(Components components, JComponent c) {
-		Components.ComponentInformationHolder data = components.getData(c);
-		Border b = data.getData("border");
-		Boolean hasBorder = data.getData("has_border");
-		if (hasBorder != null && hasBorder) {
-			c.setBorder(b);
-			data.addData("has_border", null);
-		}
-		Container parent = c.getParent();
-		if (parent instanceof JComponent) {
-			restoreOriginalBorder(components, (JComponent) parent);
-		}
+	private void addBorder(JComponent component) {
+		if (borderedComponents.put(component, PLACE_HOLDER) == null)
+			component.repaint();
 	}
 
-	private static void setupCustomBorder(Components components,
-										ComponentHighlightConfiguration configuration,
-										JComponent c)
-	{
-		Border newBorder = BorderFactory.createLineBorder(configuration.getBorderColor());
-		Border currentBorder = c.getBorder();
-
-		Components.ComponentInformationHolder data = components.getData(c);
-		Boolean definedBefore = data.getData("has_border");
-
-		if (definedBefore == null || !definedBefore) {
-			data.addData("border", currentBorder);
-			data.addData("has_border", true);
-			c.setBorder(newBorder);
-			if (configuration.getType() == ComponentHighlightConfiguration.BorderType.WHOLE_TREE) {
-				Container parent = c.getParent();
-				if (parent instanceof JComponent) {
-					setupCustomBorder(components, configuration, (JComponent) parent);
-				}
-			}
-		}
+	private void disableBorder(JComponent component) {
+		if (borderedComponents.remove(component) == PLACE_HOLDER)
+			component.repaint();
 	}
 
 	private class BorderListener implements Listener<ComponentsSelectionEvent> {
-		private final Components components;
+		private final BorderControl borderControl;
 
-		public BorderListener(Components components) {
-			this.components = components;
+		public BorderListener(BorderControl borderControl) {
+			this.borderControl = borderControl;
 		}
 
 		@Override
 		public void onEvent(ComponentsSelectionEvent update) {
 			switch (update.getType()) {
 				case ENTER:
-					if (currentConfiguration != null)
-						paintControl.addComponentToBordering(update.getComponent());
+					borderControl.addBorder(update.getComponent());
 					break;
 				case EXIT:
-					paintControl.removeComponentFromBordering(update.getComponent());
+					borderControl.disableBorder(update.getComponent());
 					break;
 			}
 		}
