@@ -12,4 +12,4 @@ How to install:
 Features:
 1. Stacktrace for all JComponent inheritors from a place where they were instantiated (useful when you need to
     find where this or that component was created)
-2. Ability to show red border for component under mouse cursor. Helps to understand how you layout really works.
+2. Ability to show red border for component under mouse cursor. Helps to understand how your layout really works.
